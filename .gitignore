@@ -1,0 +1,24 @@
+# Keil build output
+01basic_driver_code/Objects/
+01basic_driver_code/Listings/
+*.o
+*.d
+*.crf
+*.hex
+*.bin
+*.axf
+*.map
+*.htm
+*.dep
+*.lnp
+*.build_log.htm
+
+# Keil local files
+*.uvguix.*
+*.uvoptx
+DebugConfig/
+JLinkLog.txt
+
+# Windows
+Thumbs.db
+desktop.ini
