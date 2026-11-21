@@ -31,8 +31,8 @@ int16_t AvePWM, DifPWM;//平均pwm，差分pwm
 
 PID_t AnglePID = {        //PID结构体
 		.Kp = 4.5,
-		.Ki = 0.1,
-		.Kd = 0.8,
+		.Ki = 0.55,
+		.Kd = 3,
 	
 		.OutMax = 100,
 		.OutMin = -100,
@@ -123,13 +123,16 @@ int main(void)
 				int8_t RH = atoi(strtok(NULL, ","));
 				int8_t RV = atoi(strtok(NULL, ","));
 				
+				AnglePID.Target = LV / 10;
+				DifPWM = RH / 2;
+				
 			}
 			
 			BlueSerial_RxFlag = 0;
 		}
 
 		
-		BlueSerial_Printf("[plot,%f,%f,%f]", AngleAcc, AngleGyro, Angle);
+		BlueSerial_Printf("[plot,%f,%f]", AnglePID.Target, Angle);
 	}
 }
 
