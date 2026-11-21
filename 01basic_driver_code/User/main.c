@@ -197,36 +197,36 @@
 
 
 /*串口和蓝牙串口测试*/
-//int main(void)
-//{
-//	OLED_Init();
-//	Serial_Init();
-//	BlueSerial_Init();
-//	
-//	Serial_SendString("Hello");
-//	Serial_Printf("World");
-//	
-//	BlueSerial_SendString("hello");
-//	BlueSerial_Printf("world");
-//	
-//	while (1)
-//	{
-//		if (Serial_GetRxFlag() == 1)
-//		{
-//			uint8_t RxData = Serial_GetRxData();
-//			
-//			OLED_Printf(0, 0, OLED_8X16, "RxData:%02X", RxData);
-//			OLED_Update();
-//		}
-//		
-//		if (BlueSerial_RxFlag == 1)
-//		{
-//			OLED_Printf(0, 16, OLED_8X16, "%s", BlueSerial_RxPacket);
-//			OLED_Update();
-//			
-//			BlueSerial_RxFlag = 0;
-//		}
-//	}
-//}
+int main(void)
+{
+	OLED_Init();
+	Serial_Init();
+	BlueSerial_Init();
+	
+	Serial_SendString("Hello");
+	Serial_Printf("World");
+	
+	BlueSerial_SendString("hello");
+	BlueSerial_Printf("world");
+	
+	while (1)
+	{
+		if (Serial_GetRxFlag() == 1)
+		{
+			uint8_t RxData = Serial_GetRxData();
+			
+			OLED_Printf(0, 0, OLED_8X16, "RxData:%02X", RxData);
+			OLED_Update();
+		}
+		
+		if (BlueSerial_RxFlag == 1)
+		{
+			OLED_Printf(0, 16, OLED_8X16, "%s", BlueSerial_RxPacket);
+			OLED_Update();
+			
+			BlueSerial_RxFlag = 0;
+		}
+	}
+}
 
 

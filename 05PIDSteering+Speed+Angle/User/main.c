@@ -14,7 +14,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-/*速度环角度环串级pid*/
+/*速度环角度环串级+转向环pid*/
 int16_t AX, AY, AZ, GX, GY, GZ;//六轴数据量
 uint8_t TimerErrorFlag;
 uint16_t TimerCount;
@@ -31,9 +31,9 @@ int16_t AvePWM, DifPWM;//平均pwm，差分pwm
 float LeftSpeed, RightSpeed;//左右轮速度
 float AveSpeed, DifSpeed;//平均速度与差分速度
 
-PID_t AnglePID = {        //PID结构体
+PID_t AnglePID = {        //角度结构体
 		.Kp = 5.0,
-		.Ki = 0.35,
+		.Ki = 0.28,
 		.Kd = 3.0,
 	
 		.OutMax = 100,
@@ -41,17 +41,25 @@ PID_t AnglePID = {        //PID结构体
 	
 };
 
-PID_t SpeedPID = {        //PID结构体
+PID_t SpeedPID = {        //速度结构体
 		.Kp = 1.30,
 		.Ki = 0.08,
 		.Kd = 0,
 	
-		.OutMax = 20,  //角度环角度范围
-		.OutMin = -20,
+		.OutMax = 15,  //角度环角度范围
+		.OutMin = -15,
 	
 };
 
-
+PID_t TurnPID = {        //转向结构体
+		.Kp = 0,
+		.Ki = 0,
+		.Kd = 0,
+	
+		.OutMax = 50,
+		.OutMin = -50,
+	
+};
 
 
 int main(void)
@@ -79,6 +87,7 @@ int main(void)
 				//清零积分等参数
 				PID_Init(&AnglePID);
 				PID_Init(&SpeedPID);
+				PID_Init(&TurnPID);
 				RunFlag = 1;
 				
 			}
@@ -92,11 +101,11 @@ int main(void)
 		
 		OLED_Printf(0, 0, OLED_6X8, "  Angle", AX);
 		OLED_Printf(0, 8, OLED_6X8, "p:%05.2f", AnglePID.Kp);
-		OLED_Printf(0, 16, OLED_6X8, "P:%05.2f", AnglePID.Ki);
-		OLED_Printf(0, 24, OLED_6X8, "I:%05.2f", AnglePID.Kd);
-		OLED_Printf(0, 32, OLED_6X8, "D:%05.2f", AnglePID.Target);
-		OLED_Printf(0, 40, OLED_6X8, "T:%05.1f", Angle);
-		OLED_Printf(0, 48, OLED_6X8, "A:%05.1f", AnglePID.Out);
+		OLED_Printf(0, 16, OLED_6X8, "I:%05.2f", AnglePID.Ki);
+		OLED_Printf(0, 24, OLED_6X8, "D:%05.2f", AnglePID.Kd);
+		OLED_Printf(0, 32, OLED_6X8, "T:%05.2f", AnglePID.Target);
+		OLED_Printf(0, 40, OLED_6X8, "A:%05.1f", Angle);
+		OLED_Printf(0, 48, OLED_6X8, "S:%05.1f", AnglePID.Out);
 		OLED_Printf(0, 56, OLED_6X8, "GX:%05.1f", GY);
 		
 		OLED_Printf(50, 0, OLED_6X8, "  Speed", AX);
@@ -106,6 +115,14 @@ int main(void)
 		OLED_Printf(50, 32, OLED_6X8, "%05.2f", SpeedPID.Target);
 		OLED_Printf(50, 40, OLED_6X8, "%05.1f", AveSpeed);
 		OLED_Printf(50, 48, OLED_6X8, "%05.1f", SpeedPID.Out);
+		
+		OLED_Printf(88, 0, OLED_6X8, "  Turn", AX);
+		OLED_Printf(88, 8, OLED_6X8, "%05.2f", TurnPID.Kp);
+		OLED_Printf(88, 16, OLED_6X8, "%05.2f", TurnPID.Ki);
+		OLED_Printf(88, 24, OLED_6X8, "%05.2f", TurnPID.Kd);
+		OLED_Printf(88, 32, OLED_6X8, "%05.2f", TurnPID.Target);
+		OLED_Printf(88, 40, OLED_6X8, "%05.1f", DifSpeed);
+		OLED_Printf(88, 48, OLED_6X8, "%05.1f", TurnPID.Out);
 		
 		OLED_Update();
 		
@@ -139,6 +156,8 @@ int main(void)
 					AnglePID.Kd = atof(Value);
 				}
 				
+				
+				
 				else if(strcmp(Name, "SpeedKp") == 0){
 					SpeedPID.Kp = atof(Value);
 				}
@@ -150,6 +169,20 @@ int main(void)
 				else if(strcmp(Name, "SpeedKd") == 0){
 					SpeedPID.Kd = atof(Value);
 				}
+				
+				
+				
+				else if(strcmp(Name, "TurnKp") == 0){
+					TurnPID.Kp = atof(Value);
+				}
+				
+				else if(strcmp(Name, "TurnKi") == 0){
+					TurnPID.Ki = atof(Value);
+				}
+				
+				else if(strcmp(Name, "TurnKd") == 0){
+					TurnPID.Kd = atof(Value);
+				}
 			}
 			else if (strcmp(Tag, "joystick") == 0)
 			{
@@ -159,21 +192,21 @@ int main(void)
 				int8_t RV = atoi(strtok(NULL, ","));
 				
 				SpeedPID.Target = LV / 25.0;
-				DifPWM = RH / 2;
+				TurnPID.Target = RH / 25.0;
 			}
 			
 			BlueSerial_RxFlag = 0;
 		}
 
 		
-		BlueSerial_Printf("[plot,%f,%f]", SpeedPID.Target, AveSpeed);
+		BlueSerial_Printf("[plot,%f,%f]", TurnPID.Target, DifSpeed);
 	}
 }
 
 void TIM1_UP_IRQHandler(void) //1ms进一次中断
 {
 	static uint16_t Count0;//角度环调控周期10ms
-	static uint16_t Count1;//速度环读取编码器周期
+	static uint16_t Count1;//速度环读取编码器周期,转向环周期
 	
 	if (TIM_GetITStatus(TIM1, TIM_IT_Update) == SET)
 	{
@@ -240,6 +273,10 @@ void TIM1_UP_IRQHandler(void) //1ms进一次中断
 					SpeedPID.Actual = AveSpeed;
 					PID_Update(&SpeedPID);
 					AnglePID.Target = SpeedPID.Out;
+				
+					TurnPID.Actual = DifSpeed;
+					PID_Update(&TurnPID);
+					DifPWM = TurnPID.Out;
 			}
 
 

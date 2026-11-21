@@ -33,7 +33,7 @@ float AveSpeed, DifSpeed;//平均速度与差分速度
 
 PID_t AnglePID = {        //PID结构体
 		.Kp = 5.0,
-		.Ki = 0.35,
+		.Ki = 0.3,
 		.Kd = 3.0,
 	
 		.OutMax = 100,
@@ -46,8 +46,8 @@ PID_t SpeedPID = {        //PID结构体
 		.Ki = 0.08,
 		.Kd = 0,
 	
-		.OutMax = 20,  //角度环角度范围
-		.OutMin = -20,
+		.OutMax = 12,  //角度环角度范围
+		.OutMin = -12,
 	
 };
 
@@ -92,11 +92,11 @@ int main(void)
 		
 		OLED_Printf(0, 0, OLED_6X8, "  Angle", AX);
 		OLED_Printf(0, 8, OLED_6X8, "p:%05.2f", AnglePID.Kp);
-		OLED_Printf(0, 16, OLED_6X8, "P:%05.2f", AnglePID.Ki);
-		OLED_Printf(0, 24, OLED_6X8, "I:%05.2f", AnglePID.Kd);
-		OLED_Printf(0, 32, OLED_6X8, "D:%05.2f", AnglePID.Target);
-		OLED_Printf(0, 40, OLED_6X8, "T:%05.1f", Angle);
-		OLED_Printf(0, 48, OLED_6X8, "A:%05.1f", AnglePID.Out);
+		OLED_Printf(0, 16, OLED_6X8, "I:%05.2f", AnglePID.Ki);
+		OLED_Printf(0, 24, OLED_6X8, "D:%05.2f", AnglePID.Kd);
+		OLED_Printf(0, 32, OLED_6X8, "T:%05.2f", AnglePID.Target);
+		OLED_Printf(0, 40, OLED_6X8, "A:%05.1f", Angle);
+		OLED_Printf(0, 48, OLED_6X8, "S:%05.1f", AnglePID.Out);
 		OLED_Printf(0, 56, OLED_6X8, "GX:%05.1f", GY);
 		
 		OLED_Printf(50, 0, OLED_6X8, "  Speed", AX);
@@ -191,7 +191,7 @@ void TIM1_UP_IRQHandler(void) //1ms进一次中断
 			
 			//加速度,校准
 			AngleAcc = -atan2(AY,AZ)/3.14159 * 180;
-			AngleAcc -= 2.7;
+			AngleAcc -= 2.2;
 			//陀螺仪
 			AngleGyro = Angle - GX /32768.0 * 2000 * 0.01;
 			//互补滤波
