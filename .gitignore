@@ -1,6 +1,6 @@
 # Keil build output
-01basic_driver_code/Objects/
-01basic_driver_code/Listings/
+**/Objects/
+**/Listings/
 *.o
 *.d
 *.crf
