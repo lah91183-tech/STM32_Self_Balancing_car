@@ -61,7 +61,7 @@ PID_t SpeedPID = {        //速度结构体
 
 PID_t TurnPID = {        //转向结构体
 		.Kp = 5,
-		.Ki = 2,
+		.Ki = 3.2,
 		.Kd = 0,
 	
 		.OutMax = 80,
